@@ -1,0 +1,32 @@
+spring:
+  application:
+    name: aspen
+
+  datasource:
+    url: ${aspen_backend_db_url}
+    username: ${aspen_backend_db_username}
+    password: ${aspen_backend_db_password}
+
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+  data:
+    redis:
+      host: ${aspen_backend_db_redis_host}
+
+jwt:
+  secret: ${aspen_backend_jwt_secret}
+  access-expiry: 3600000
+  refresh-expiry: 604800000
+
+
+google:
+  web:
+    client:
+      id: ${aspen_backend_web_client_id}

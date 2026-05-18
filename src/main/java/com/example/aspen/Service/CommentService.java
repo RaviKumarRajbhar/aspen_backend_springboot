@@ -1,0 +1,116 @@
+package com.example.aspen.Service;
+
+
+import com.example.aspen.Dto.CommentResponse;
+import com.example.aspen.Entities.Comment;
+import com.example.aspen.Entities.Post;
+import com.example.aspen.Entities.User;
+import com.example.aspen.Repository.CommentRepository;
+import com.example.aspen.Repository.PostRepository;
+import com.example.aspen.Repository.UserRepository;
+import jakarta.transaction.Transactional;
+import org.springframework.boot.autoconfigure.graphql.GraphQlProperties;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.util.List;
+import java.util.UUID;
+
+@Service
+public class CommentService {
+
+    private final PostRepository postRepository;
+    private final UserRepository userRepository;
+    private final CommentRepository commentRepository;
+
+
+    public CommentService(PostRepository postRepository, UserRepository userRepository, CommentRepository commentRepository) {
+        this.postRepository = postRepository;
+        this.userRepository = userRepository;
+        this.commentRepository = commentRepository;
+    }
+
+
+
+    @Transactional
+    public void createComment(UUID userId , UUID postId , String content){
+
+        if(content == null || content.isBlank()){
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Comment cannot be empty"
+            );
+        }
+
+        User user = userRepository.getReferenceById(userId);
+        Post post = postRepository.getReferenceById(postId);
+
+
+
+        Comment comment = new Comment(user,post,content);
+
+        commentRepository.save(comment);
+
+        post.setCommentCount(post.getCommentCount() + 1);
+
+
+    }
+
+
+    @Transactional
+    public void deleteComment(UUID userId , UUID commentId){
+
+        Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new ResponseStatusException(
+                HttpStatus.NOT_FOUND,
+                "Comment Not Found"
+        ));
+
+
+        if(!comment.getUser().getId().equals(userId)){
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN ,
+                    "You are not Authorized to delete this Comment");
+        }
+
+        Post post = comment.getPost();
+
+        commentRepository.delete(comment);
+
+        post.setCommentCount(post.getCommentCount() - 1);
+    }
+
+    public List<CommentResponse> getComments(UUID postId) {
+
+        List<Comment> comments = commentRepository.findByPostIdWithUser(postId);
+
+        return comments.stream()
+                .map(c -> new CommentResponse(
+                        c.getId(),
+                        c.getContent(),
+                        c.getUser().getUsername()
+                ))
+                .toList();
+    }
+
+    public Comment getCommentById(UUID commentId){
+        return commentRepository.findById(commentId).orElseThrow(() -> new RuntimeException("Comment not Found"));
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+}
