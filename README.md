@@ -27,7 +27,11 @@ This project focuses on secure authentication, scalable backend architecture, ca
 - Like / Unlike Posts
 - Comment on Posts
 - Follow / Unfollow Users
-- Timelined User Feed
+- Timeline Feed
+- Paginated Feed
+- Paginated User Posts
+- Paginated Comments
+- Paginated Followers & Following
 
 ---
 
@@ -39,6 +43,8 @@ This project follows layered architecture:
 - Repository Layer
 - DTO Layer
 - Global Exception Handling
+- RESTful API Design
+- Pagination
 
 ---
 
@@ -89,6 +95,7 @@ Handles:
 Handles:
 - Create Post
 - Fetch Posts
+- Paginated User Posts
 
 ### Like Module
 Handles:
@@ -97,14 +104,17 @@ Handles:
 ### Comment Module
 Handles:
 - Add Comments
+- PaginatedComments
 
 ### Follow Module
 Handles:
 - Follow / Unfollow users
+- Paginated Followers & Following
 
 ### Feed Module
 Handles:
-- Timelined User feed
+- Timeline feed
+- Feed Pagination
 
 ---
 
