@@ -3,10 +3,12 @@ package com.example.aspen.Dto.Mapper;
 
 import com.example.aspen.Dto.PostResponse;
 import com.example.aspen.Entities.Post;
+import org.springframework.stereotype.Component;
 
+@Component
 public class PostMapper {
 
-    public static PostResponse toResponse(Post post) {
+    public PostResponse toResponse(Post post) {
         PostResponse res = new PostResponse();
 
         res.setId(post.getId());
@@ -18,8 +20,10 @@ public class PostMapper {
         res.setImageUrl(post.getImageUrl());
 
 
-        res.setUserId(post.getUser().getId());
-        res.setUsername(post.getUser().getUsername());
+        if (post.getUser() != null) {
+            res.setUserId(post.getUser().getId());
+            res.setUsername(post.getUser().getUsername());
+        }
 
         return res;
     }

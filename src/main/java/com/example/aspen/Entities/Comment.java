@@ -2,8 +2,10 @@ package com.example.aspen.Entities;
 
 
 import jakarta.persistence.*;
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
@@ -34,6 +36,10 @@ public class Comment {
     @JoinColumn(name = "post_id" , nullable = false)
     private Post post;
 
+    @CreatedDate
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
 
     public Post getPost() {
         return post;
@@ -53,4 +59,11 @@ public class Comment {
     }
 
 
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
 }

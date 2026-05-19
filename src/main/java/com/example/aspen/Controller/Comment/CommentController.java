@@ -3,6 +3,7 @@ package com.example.aspen.Controller.Comment;
 
 import com.example.aspen.Dto.CommentRequest;
 import com.example.aspen.Service.CommentService;
+import org.springframework.data.convert.ReadingConverter;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -38,10 +39,11 @@ public class CommentController {
 
     @GetMapping("/{postId}")
     public ResponseEntity<?> getComments(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
             @PathVariable UUID postId
     ){
-        return ResponseEntity.ok(commentService.getComments(postId));
-
+        return ResponseEntity.ok(commentService.getComments(postId , page , size));
     }
 
     @DeleteMapping("/{commentId}")

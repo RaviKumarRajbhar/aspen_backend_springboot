@@ -1,5 +1,6 @@
 package com.example.aspen.Controller.Follow;
 
+import com.example.aspen.Dto.PagedResponse;
 import com.example.aspen.Dto.UserSummaryDto;
 import com.example.aspen.Entities.User;
 import com.example.aspen.Service.FollowService;
@@ -38,26 +39,30 @@ public class FollowController {
     }
 
     @GetMapping("/followers")
-    public ResponseEntity<?> followersList(
+    public ResponseEntity<PagedResponse<UserSummaryDto>> followersList(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "15") int size,
             Authentication authentication
     ){
         String userIdStr = (String) authentication.getPrincipal();
         UUID userId = UUID.fromString(userIdStr);
 
-        List<UserSummaryDto> followers = followService.getFollowers(userId);
+        PagedResponse<UserSummaryDto> followers = followService.getFollowers(userId , page , size);
 
         return ResponseEntity.ok(followers);
 
     }
 
     @GetMapping("/following")
-    public ResponseEntity<?> followingList (
+    public ResponseEntity<PagedResponse<UserSummaryDto>> followingList (
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "15") int size,
             Authentication authentication
     ) {
          String userIdStr = (String) authentication.getPrincipal();
          UUID userId = UUID.fromString(userIdStr);
 
-         List<UserSummaryDto> followings = followService.getFollowing(userId);
+         PagedResponse<UserSummaryDto> followings = followService.getFollowing(userId , page , size);
 
          return ResponseEntity.ok(followings);
     }

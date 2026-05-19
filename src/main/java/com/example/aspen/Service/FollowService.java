@@ -2,12 +2,17 @@ package com.example.aspen.Service;
 
 import com.example.aspen.CustomException.BadRequestException;
 import com.example.aspen.CustomException.ResourceNotFoundException;
+import com.example.aspen.Dto.PagedResponse;
 import com.example.aspen.Dto.UserSummaryDto;
 import com.example.aspen.Entities.Follow;
 import com.example.aspen.Entities.User;
 import com.example.aspen.Repository.FollowRepository;
 import com.example.aspen.Repository.UserRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -61,52 +66,61 @@ public class FollowService {
     }
 
 
-    public List<UserSummaryDto> getFollowers(UUID userId) {
+    public PagedResponse<UserSummaryDto> getFollowers(UUID userId , int page , int size) {
 
-        List<Follow> follows = followRepository.findByFollowingId(userId);
+        Pageable pageable = PageRequest.of(page ,size , Sort.by("createdAt").descending());
 
-        List<User> followers = new ArrayList<>();
+        Page<UserSummaryDto> follows = followRepository.findByFollowingId(userId , pageable)
+                .map(follow ->{
+                    User user = follow.getFollower();
 
-        for (Follow follow : follows) {
-            User user = userRepository.findById(follow.getFollower().getId())
-                    .orElseThrow(() -> new ResourceNotFoundException("User Not Found"));
+                    return new UserSummaryDto(
+                            user.getId(),
+                            user.getUsername(),
+                            user.getBio()
+                    );
+                });
+        PagedResponse<UserSummaryDto> response = new PagedResponse<>();
+        response.setTotalElements(follows.getTotalElements());
+        response.setTotalPages(follows.getTotalPages());
+        response.setContent(follows.getContent());
+        response.setHasNext(follows.hasNext());
+        response.setCurrentPage(follows.getNumber());
 
-            followers.add(user);
-        }
-
-
-
-        return followers.stream()
-                .map(user -> new UserSummaryDto(
-                        user.getId(),
-                        user.getUsername(),
-                        user.getBio()
-                        //profile image
-                ))
-                .toList();
+        return response;
 
     }
 
-    public List<UserSummaryDto> getFollowing(UUID userId) {
+    @Transactional
+    public PagedResponse<UserSummaryDto> getFollowing(UUID userId , int page , int size ) {
 
-        List<Follow> following = followRepository.findByFollowerId(userId);
+        Pageable pageable = PageRequest.of(
+                page,
+                size,
+                Sort.by("createdAt").descending()
+        );
 
-        List<User> followings = new ArrayList<>();
+        Page<UserSummaryDto> following = followRepository.findByFollowerId(userId , pageable)
+                .map(follow -> {
+                    User user = follow.getFollowing();
 
-        for (Follow follow : following){
-            User user = userRepository.findById(follow.getFollowing().getId())
-                    .orElseThrow(() -> new ResourceNotFoundException("User Not Found"));
+                    return new UserSummaryDto(
+                            user.getId(),
+                            user.getUsername(),
+                            user.getBio()
+                    );
+                } );
+        PagedResponse<UserSummaryDto> response = new PagedResponse<>();
 
-            followings.add(user);
-        }
+        response.setCurrentPage(following.getNumber());
+        response.setContent(following.getContent());
+        response.setTotalElements(following.getTotalElements());
+        response.setHasNext(following.hasNext());
+        response.setTotalPages(following.getTotalPages());
 
-        return followings.stream()
-                .map( user -> new UserSummaryDto(
-                        user.getId(),
-                        user.getUsername(),
-                        user.getBio()
-                ))
-                .toList();
+        return response;
+
+
     }
 
 

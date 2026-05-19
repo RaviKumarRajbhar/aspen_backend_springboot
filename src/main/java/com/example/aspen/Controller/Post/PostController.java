@@ -1,6 +1,7 @@
 package com.example.aspen.Controller.Post;
 
 
+import com.example.aspen.Dto.PagedResponse;
 import com.example.aspen.Dto.PostRequest;
 import com.example.aspen.Dto.PostResponse;
 import com.example.aspen.Entities.Post;
@@ -47,12 +48,14 @@ public class PostController {
 
     @GetMapping("/my")
     public ResponseEntity<?> getMyPosts(
+            @RequestParam(defaultValue = "0") int page ,
+            @RequestParam(defaultValue = "6") int size,
             Authentication authentication
     ) {
         String userIdStr = (String) authentication.getPrincipal();
         UUID userId = UUID.fromString(userIdStr);
 
-        List<PostResponse> posts = postService.getAllPostsByUserId(userId);
+        PagedResponse<PostResponse> posts = postService.getAllPostsByUserId(userId , page , size);
 
         return ResponseEntity.ok(posts);
     }

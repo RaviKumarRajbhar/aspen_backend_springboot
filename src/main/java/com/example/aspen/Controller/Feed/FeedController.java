@@ -1,13 +1,16 @@
 package com.example.aspen.Controller.Feed;
 
+import com.example.aspen.Dto.PagedResponse;
 import com.example.aspen.Dto.PostResponse;
 import com.example.aspen.Entities.Post;
 import com.example.aspen.Repository.PostRepository;
 import com.example.aspen.Service.FeedService;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -24,16 +27,20 @@ public class FeedController {
         this.feedService = feedService;
     }
 
-    @GetMapping
-    public ResponseEntity<List<PostResponse>> getFeed(
+
+    @GetMapping()
+    public ResponseEntity<PagedResponse<PostResponse>> getPagedFeed (
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size,
             Authentication authentication
-    ){
+    ) {
 
         String userIdStr = (String) authentication.getPrincipal();
         UUID userId = UUID.fromString(userIdStr);
 
-        List<PostResponse> posts = feedService.getFeed(userId);
+        PagedResponse<PostResponse> response = feedService.getPagedFeed( userId , page , size);
 
-        return ResponseEntity.ok(posts);
+        return ResponseEntity.ok(response);
+
     }
 }
