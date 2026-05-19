@@ -2,7 +2,7 @@
 
 Aspen is a backend system for a social media application built using Java and Spring Boot.
 
-This project focuses on secure authentication, scalable backend architecture, caching, token management, and social media features like posts, comments, likes, follows, and personalized feeds.
+This project focuses on secure authentication, scalable backend architecture, caching, token management, and social media features like posts, comments, likes, follows, and timelined feeds.
 
 ---
 
@@ -27,7 +27,7 @@ This project focuses on secure authentication, scalable backend architecture, ca
 - Like / Unlike Posts
 - Comment on Posts
 - Follow / Unfollow Users
-- Personalized User Feed
+- Timelined User Feed
 
 ---
 
@@ -66,8 +66,6 @@ Testing is implemented using:
 Test coverage includes:
 
 - Authentication Logic
-- JWT Validation
-- Controller Testing
 - Service Layer Testing
 
 ---
@@ -106,7 +104,7 @@ Handles:
 
 ### Feed Module
 Handles:
-- Personalized user feed
+- Timelined User feed
 
 ---
 
