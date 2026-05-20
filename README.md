@@ -72,7 +72,8 @@ Testing is implemented using:
 Test coverage includes:
 
 - Authentication Logic
-- Service Layer Testing
+- Auth Service Layer Testing
+- Post Service Layer Testing
 
 ---
 
