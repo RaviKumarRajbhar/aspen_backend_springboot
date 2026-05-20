@@ -84,7 +84,6 @@ public class PostService {
 
     public PagedResponse<PostResponse> getAllPostsByUserId(UUID userId , int page , int size) {
 
-        List<Post> posts = postRepository.findByUserId(userId);
 
         Pageable pageable = PageRequest.of(
                 page, size, Sort.by("createdAt").descending()
@@ -109,7 +108,7 @@ public class PostService {
     public Post getPostById(UUID postId ) {
 
         return postRepository.findById(postId)
-                .orElseThrow(() -> new RuntimeException("Post Not Found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Post Not Found"));
     }
 
 
@@ -117,7 +116,7 @@ public class PostService {
     public void deletePost( UUID userId , UUID postId ) {
 
         Post post = postRepository.findById(postId)
-                        .orElseThrow(() -> new RuntimeException("Post Not Found"));
+                        .orElseThrow(() -> new ResourceNotFoundException("Post Not Found"));
 
         if (!post.getUser().getId().equals(userId)) {
 
@@ -134,7 +133,7 @@ public class PostService {
     }
 
 
-    public Post editPost( UUID userId, UUID postId, String newContent ) {
+    public Post editPost( UUID userId, UUID postId, String newContent ) { // Not Completed Yet
 
         if (newContent == null || newContent.trim().isEmpty()) {
 

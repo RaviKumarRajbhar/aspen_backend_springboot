@@ -16,7 +16,7 @@ import java.util.UUID;
 public class Post {
 
 
-    protected Post(){}
+    public Post(){}
 
     public Post(User user , String caption){
         this.user = user;
@@ -63,6 +63,10 @@ public class Post {
 
     public UUID getId() {
         return id;
+    }
+
+    public void setId(UUID id) {
+        this.id = id;
     }
 
     public List<Comment> getComments() {
@@ -131,5 +135,9 @@ public class Post {
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 }
