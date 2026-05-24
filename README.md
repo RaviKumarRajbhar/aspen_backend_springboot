@@ -14,7 +14,6 @@ This project focuses on secure authentication, scalable backend architecture, ca
 - User Registration
 - User Login
 - JWT Authentication
-- Access Token Authentication
 - Refresh Token Authentication
 - Google OAuth Login
 - Password Encryption using Spring Security
@@ -45,6 +44,7 @@ This project follows layered architecture:
 - Global Exception Handling
 - RESTful API Design
 - Pagination
+- Redis Based Rate Limiting (Fixed Window)
 
 ---
 

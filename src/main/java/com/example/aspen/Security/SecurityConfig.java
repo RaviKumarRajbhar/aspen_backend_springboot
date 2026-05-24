@@ -1,5 +1,6 @@
 package com.example.aspen.Security;
 
+import com.example.aspen.Security.RateLimit.RateLimitingFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -13,9 +14,11 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final JwtFilter jwtFilter;
+    private final RateLimitingFilter rateLimitingFilter;
 
-    public SecurityConfig(JwtFilter jwtFilter) {
+    public SecurityConfig(JwtFilter jwtFilter, RateLimitingFilter rateLimitingFilter) {
         this.jwtFilter = jwtFilter;
+        this.rateLimitingFilter = rateLimitingFilter;
     }
 
     @Bean
@@ -52,7 +55,12 @@ public class SecurityConfig {
 
                 .addFilterBefore(
                         jwtFilter,
-                        UsernamePasswordAuthenticationFilter.class);
+                        UsernamePasswordAuthenticationFilter.class)
+
+                .addFilterBefore(
+                rateLimitingFilter,
+                JwtFilter.class
+        );
 
         return http.build();
     }

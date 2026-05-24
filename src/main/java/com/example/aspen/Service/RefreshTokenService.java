@@ -48,7 +48,7 @@ public class RefreshTokenService {
     }
 
     public void deleteToken(String username){
-        redisTemplate.delete(username);
+        redisTemplate.delete("refresh:" + username);
     }
 
 
