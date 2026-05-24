@@ -19,6 +19,11 @@ public interface PostRepository extends JpaRepository<Post, UUID> {
     @EntityGraph(attributePaths = {"user"})
     Page<Post> findAll(Pageable pageable);
 
+    Page<Post> findByUserIdInOrderByCreatedAtDesc(
+            List<UUID> userIds,
+            Pageable pageable
+    );
+
 
     @EntityGraph(attributePaths = {"user"})
     Page<Post> findByUserId(

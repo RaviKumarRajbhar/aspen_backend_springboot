@@ -3,7 +3,8 @@ package com.example.aspen.Service;
 import com.example.aspen.Dto.Mapper.PostMapper;
 import com.example.aspen.Dto.PagedResponse;
 import com.example.aspen.Dto.PostResponse;
-import com.example.aspen.Entities.Post;
+import com.example.aspen.Entities.Follow;
+import com.example.aspen.Repository.FollowRepository;
 import com.example.aspen.Repository.PostRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -20,24 +21,52 @@ public class FeedService {
 
     private final PostRepository postRepository;
     private final PostMapper postMapper;
+    private final FollowRepository followRepository;
 
-    public FeedService(PostRepository postRepository, PostMapper postMapper) {
+    public FeedService(PostRepository postRepository, PostMapper postMapper, FollowRepository followRepository) {
         this.postRepository = postRepository;
         this.postMapper = postMapper;
+        this.followRepository = followRepository;
     }
 
 
+
     @Transactional(readOnly = true)
-    public PagedResponse<PostResponse> getPagedFeed(UUID UserId , int page , int size) {
+    public PagedResponse<PostResponse> getFeed(UUID userId , int page , int size) {
+
+        List<Follow> follows = followRepository.findAllByFollowerId(userId);
+
+        List<UUID> followedUserIds = follows.stream()
+                .map(follow ->
+                        follow.getFollowing().getId())
+                .toList();
+
+        if(followedUserIds.isEmpty()) {
+
+            PagedResponse<PostResponse> emptyResponse = new PagedResponse<>();
+
+            emptyResponse.setContent(List.of());
+            emptyResponse.setTotalPages(0);
+            emptyResponse.setHasNext(false);
+            emptyResponse.setTotalElements(0);
+            emptyResponse.setCurrentPage(0);
+
+            System.out.println("empty response returned");
+
+            return emptyResponse;
+        }
+
 
         Pageable pageable = PageRequest.of(
                 page,
-                size,
-                Sort.by("createdAt").descending()
+                size
         );
 
-        Page<PostResponse> pageResult =  postRepository.findAll(pageable)
+        Page<PostResponse> pageResult = postRepository.findByUserIdInOrderByCreatedAtDesc(followedUserIds, pageable)
                 .map(postMapper::toResponse);
+
+//        Page<PostResponse> pageResult =  postRepository.findAll(pageable)
+//                .map(postMapper::toResponse);
 
         PagedResponse<PostResponse> response = new PagedResponse<>();
 
