@@ -51,8 +51,6 @@ public class FeedService {
             emptyResponse.setTotalElements(0);
             emptyResponse.setCurrentPage(0);
 
-            System.out.println("empty response returned");
-
             return emptyResponse;
         }
 

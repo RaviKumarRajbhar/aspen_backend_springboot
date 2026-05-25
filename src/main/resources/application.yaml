@@ -25,6 +25,7 @@ spring:
   data:
     redis:
       host: ${aspen_backend_db_redis_host}
+      port: ${aspen_backend_db_redis_port}
 
 jwt:
   secret: ${aspen_backend_jwt_secret}
