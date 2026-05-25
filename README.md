@@ -26,7 +26,7 @@ This project focuses on secure authentication, scalable backend architecture, ca
 - Like / Unlike Posts
 - Comment on Posts
 - Follow / Unfollow Users
-- Timeline Feed
+- Following-based feed generation
 - Paginated Feed
 - Paginated User Posts
 - Paginated Comments
@@ -105,7 +105,7 @@ Handles:
 ### Comment Module
 Handles:
 - Add Comments
-- PaginatedComments
+- Paginated Comments
 
 ### Follow Module
 Handles:
@@ -114,7 +114,8 @@ Handles:
 
 ### Feed Module
 Handles:
-- Timeline feed
+- Following-based feed generation
+- Displays posts from followed users
 - Feed Pagination
 
 ---
@@ -129,4 +130,20 @@ aspen_backend_db_username=
 aspen_backend_db_password=
 aspen_backend_jwt_secret=
 aspen_backend_db_redis_host=
+aspen_backend_db_redis_port=
 aspen_backend_web_client_id=
+```
+
+## Running with Docker
+
+Start PostgreSQL and Redis containers:
+
+```bash
+docker compose up -d
+```
+
+Verify running containers:
+
+```bash
+docker ps
+```
