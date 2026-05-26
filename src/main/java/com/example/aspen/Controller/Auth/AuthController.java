@@ -80,29 +80,4 @@ public class AuthController {
         return "Logged Out Successfully";
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }
