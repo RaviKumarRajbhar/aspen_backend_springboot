@@ -4,9 +4,11 @@ package com.example.aspen.Controller.Auth;
 import com.example.aspen.Dto.*;
 import com.example.aspen.Service.AuthService;
 import com.example.aspen.Service.GoogleTokenVerifierService;
+import com.example.aspen.Service.PasswordResetService;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import jakarta.annotation.PostConstruct;
 import jakarta.validation.Valid;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -19,11 +21,13 @@ public class AuthController {
     }
 
     private final AuthService authService;
+    private final PasswordResetService passwordResetService;
 
     public AuthController(
-            AuthService authService) {
+            AuthService authService, PasswordResetService passwordResetService) {
 
         this.authService = authService;
+        this.passwordResetService = passwordResetService;
     }
 
     @PostMapping("/register/initiate")
@@ -57,11 +61,26 @@ public class AuthController {
         return authService.refresh(request.getRefreshToken());
     }
 
+    @PostMapping("/forgot-password")
+    public ResponseEntity<String> forgotPassword(@RequestBody ForgotPasswordRequest request){
+        passwordResetService.forgotPassword(request.getEmail());
+        return ResponseEntity.ok("Reset link has been sent to your email");
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<String> resetPassword(@RequestBody ResetPasswordRequest request) {
+        passwordResetService.resetPassword(request.getToken() , request.getNewPassword());
+
+        return  ResponseEntity.ok("Password reset successful");
+    }
+
     @PostMapping("/logout")
     public String logout(@RequestBody String refreshToken){
         authService.logout(refreshToken);
         return "Logged Out Successfully";
     }
+
+
 
 
 
