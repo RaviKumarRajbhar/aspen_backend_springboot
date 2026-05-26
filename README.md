@@ -11,13 +11,15 @@ This project focuses on secure authentication, scalable backend architecture, ca
 ## Features
 
 ### Authentication & Security
-- User Registration
+- Email OTP Based User Registration
 - User Login
 - JWT Authentication
 - Refresh Token Authentication
 - Google OAuth Login
 - Password Encryption using Spring Security
 - Protected Routes
+- Redis Based Rate Limiting (Fixed Window)
+
 
 ---
 
@@ -59,6 +61,7 @@ This project follows layered architecture:
 - Redis
 - JPA / Hibernate
 - Gradle
+- Gmail SMTP
 
 ---
 
@@ -81,7 +84,8 @@ Test coverage includes:
 
 ### Auth Module
 Handles:
-- Register
+- OTP Registeration
+- OTP Verification
 - Login
 - Token Generation
 - Token Refresh
