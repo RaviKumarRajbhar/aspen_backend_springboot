@@ -48,7 +48,7 @@ public class GlobalExceptionHandler {
         response.put("success" , false);
         response.put("message" , ex.getMessage());
 
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
     }
 
     @ExceptionHandler(WrongAuthProviderException.class)

@@ -129,8 +129,8 @@ aspen_backend_db_url=
 aspen_backend_db_username=
 aspen_backend_db_password=
 aspen_backend_jwt_secret=
-aspen_backend_db_redis_host=
-aspen_backend_db_redis_port=
+aspen_backend_redis_host=
+aspen_backend_redis_port=
 aspen_backend_web_client_id=
 ```
 

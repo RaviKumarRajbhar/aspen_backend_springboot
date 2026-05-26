@@ -5,9 +5,7 @@ import com.example.aspen.CustomException.InvalidCredentialsException;
 import com.example.aspen.CustomException.ResourceNotFoundException;
 import com.example.aspen.CustomException.UserAlreadyExistsException;
 import com.example.aspen.CustomException.WrongAuthProviderException;
-import com.example.aspen.Dto.LoginRequest;
-import com.example.aspen.Dto.LoginResponse;
-import com.example.aspen.Dto.RegisterRequest;
+import com.example.aspen.Dto.*;
 import com.example.aspen.Entities.User;
 import com.example.aspen.Repository.UserRepository;
 import com.example.aspen.Security.AuthProvider;
@@ -26,14 +24,19 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final GoogleTokenVerifierService verifierService;
+    private final OtpService otpService;
+    private final TemporaryRegistrationService temporaryRegistrationService;
+    private final MailService mailService;
 
-
-    public AuthService(JwtUtil jwtUtil, RefreshTokenService refreshTokenService, UserRepository userRepository, PasswordEncoder passwordEncoder, GoogleTokenVerifierService verifierService) {
+    public AuthService(JwtUtil jwtUtil, RefreshTokenService refreshTokenService, UserRepository userRepository, PasswordEncoder passwordEncoder, GoogleTokenVerifierService verifierService, OtpService otpService, TemporaryRegistrationService temporaryRegistrationService, MailService mailService) {
         this.jwtUtil = jwtUtil;
         this.refreshTokenService = refreshTokenService;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.verifierService = verifierService;
+        this.otpService = otpService;
+        this.temporaryRegistrationService = temporaryRegistrationService;
+        this.mailService = mailService;
     }
 
 
@@ -76,17 +79,19 @@ public class AuthService {
 
         return new LoginResponse(accessToken , refreshToken);
 
-
-
     }
 
-    public LoginResponse register(RegisterRequest request) {
+    public String initiateRegister(RegisterRequest request) {
 
-        if (userRepository.existsByEmail(request.getEmail())) {
-            throw new UserAlreadyExistsException("Email not available");
+        if (request.getEmail() == null || request.getEmail().isBlank()) {
+            throw new InvalidCredentialsException("Email is Required");
         }
 
-        if(request.getPassword() == null || request.getPassword().isBlank()){
+        if(userRepository.existsByEmail(request.getEmail())) {
+            throw new UserAlreadyExistsException("Email Already Exists");
+        }
+
+        if (request.getPassword() == null || request.getPassword().isBlank()){
             throw new InvalidCredentialsException("Password is Required");
         }
 
@@ -94,34 +99,63 @@ public class AuthService {
 
         String username = request.getUsername();
 
-        if (username == null || username.isBlank()) {
-            username = "user_" + UUID.randomUUID().toString().substring(0, 8);
+        if (username == null || username.isBlank()){
+            username = "user_" + UUID.randomUUID()
+                    .toString()
+                    .substring(0,8);
+        }
+
+        String otp = otpService.generateOtp();
+
+        TemporaryRegistration temporaryRegistration = new TemporaryRegistration(
+                request.getEmail(),
+                username,
+                hashedPassword,
+                otp
+        );
+
+        temporaryRegistrationService.save(request.getEmail() , temporaryRegistration);
+
+        mailService.sendOtp(request.getEmail() , otp);
+
+        return "OTP sent successfully";
+    }
+
+
+    public LoginResponse verifyRegister(VerifyOtpRequest request) {
+
+        TemporaryRegistration data = temporaryRegistrationService.get(request.getEmail());
+
+        if (data == null) {
+            throw new InvalidCredentialsException("OTP expired");
+        }
+
+        if (!data.getOtp().equals(request.getOtp())) {
+            throw new InvalidCredentialsException("Invalid Otp");
         }
 
         User user = new User(
-                username,
-                hashedPassword,
-                request.getEmail()
+                data.getUsername(),
+                data.getHashedPassword(),
+                data.getEmail()
         );
 
-        user.setAuthProvider(AuthProvider.LOCAL); // local user
-
-        user.validateAuthData();
+        user.setAuthProvider(AuthProvider.LOCAL);
 
         User savedUser = userRepository.save(user);
 
-        String userId = savedUser.getId().toString();
+        temporaryRegistrationService.delete(request.getEmail());
 
-        String accessToken = jwtUtil.generateAccessToken(userId);
-        String refreshToken = jwtUtil.generateRefreshToken(userId);
+        String accessToken = jwtUtil.generateAccessToken(savedUser.getId().toString());
 
-        refreshTokenService.saveRefreshToken(userId, refreshToken);
+        String refreshToken = jwtUtil.generateRefreshToken(savedUser.getId().toString());
 
-        return new LoginResponse(accessToken , refreshToken);
 
+        refreshTokenService.saveRefreshToken(savedUser.getId().toString(), refreshToken);
+
+        return new LoginResponse(accessToken, refreshToken);
 
     }
-
 
 
     public LoginResponse login(LoginRequest request){

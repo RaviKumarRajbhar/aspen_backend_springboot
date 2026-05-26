@@ -26,6 +26,16 @@ public class AuthController {
         this.authService = authService;
     }
 
+    @PostMapping("/register/initiate")
+    public String initiateRegister(@RequestBody RegisterRequest request) {
+        return authService.initiateRegister(request);
+    }
+
+    @PostMapping("/register/verify")
+    public LoginResponse verifyRegister(@RequestBody VerifyOtpRequest request) {
+        return  authService.verifyRegister(request);
+    }
+
 
 
     @PostMapping("/google")
@@ -35,12 +45,6 @@ public class AuthController {
     ) throws Exception {
 
         return authService.loginWithGoogle(request.getIdToken()) ;
-    }
-
-
-    @PostMapping("/register")
-    public LoginResponse register(@Valid @RequestBody RegisterRequest request) {
-        return authService.register(request);
     }
 
     @PostMapping("/login")

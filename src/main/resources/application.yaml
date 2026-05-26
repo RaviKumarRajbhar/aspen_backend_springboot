@@ -1,5 +1,18 @@
 spring:
 
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${aspen_mail}
+    password: ${aspen_mail_password}
+
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
   servlet:
     multipart:
       max-file-size: 10MB
@@ -24,8 +37,8 @@ spring:
 
   data:
     redis:
-      host: ${aspen_backend_db_redis_host}
-      port: ${aspen_backend_db_redis_port}
+      host: ${aspen_backend_redis_host}
+      port: ${aspen_backend_redis_port}
 
 jwt:
   secret: ${aspen_backend_jwt_secret}

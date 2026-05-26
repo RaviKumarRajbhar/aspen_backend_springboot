@@ -28,7 +28,9 @@ private static  final  Map<String , RateLimitRule > RATE_LIMIT_RULES =
 
                 "/auth/login" , new RateLimitRule(5 , 60),
 
-                "/auth/register" , new RateLimitRule(3 ,60),
+                "/auth/register/initiate" , new RateLimitRule(3 ,60),
+
+                "/auth/register/verify" , new RateLimitRule(3 , 60),
 
                 "/posts" , new RateLimitRule(10 , 60),
 
@@ -48,7 +50,19 @@ private static  final  Map<String , RateLimitRule > RATE_LIMIT_RULES =
 
         String path = request.getServletPath();
 
-        RateLimitRule rule = RATE_LIMIT_RULES.get(path);
+        RateLimitRule rule = null;
+
+        for (Map.Entry<String, RateLimitRule> entry
+                : RATE_LIMIT_RULES.entrySet()) {
+
+            if (path.startsWith(entry.getKey())) {
+
+                rule = entry.getValue();
+
+                break;
+            }
+        }
+
 
         if(rule == null){
             filterChain . doFilter(request , response);
