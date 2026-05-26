@@ -19,6 +19,8 @@ This project focuses on secure authentication, scalable backend architecture, ca
 - Password Encryption using Spring Security
 - Protected Routes
 - Redis Based Rate Limiting (Fixed Window)
+- Redis Based Password Reset System
+- Asynchronous Email Sending
 
 
 ---
@@ -71,6 +73,7 @@ Testing is implemented using:
 
 - JUnit
 - Mockito
+- Unit Testing
 
 Test coverage includes:
 
@@ -84,12 +87,14 @@ Test coverage includes:
 
 ### Auth Module
 Handles:
-- OTP Registeration
+- OTP Registration
 - OTP Verification
 - Login
 - Token Generation
 - Token Refresh
 - Google OAuth Login
+- Forgot Password
+- Password Reset via Email Token
 
 ### User Module
 Handles:
@@ -136,6 +141,8 @@ aspen_backend_jwt_secret=
 aspen_backend_redis_host=
 aspen_backend_redis_port=
 aspen_backend_web_client_id=
+aspen_mail=
+aspen_mail_password=
 ```
 
 ## Running with Docker
