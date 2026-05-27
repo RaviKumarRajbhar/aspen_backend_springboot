@@ -40,7 +40,9 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll()
-
+                        .requestMatchers(
+                                "/test-notification"
+                        ).permitAll()
                         .requestMatchers(
                                 "/oauth2/**",
                                          "/login/**"

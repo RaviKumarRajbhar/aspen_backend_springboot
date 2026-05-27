@@ -41,3 +41,4 @@ out/
 .env.*
 uploads/
 *.log
+aspen-backend-firebase-admin.json

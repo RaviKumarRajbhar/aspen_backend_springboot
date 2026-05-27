@@ -27,11 +27,13 @@ public class FollowService {
     private final FollowRepository followRepository;
     private final UserRepository userRepository;
     private final NotificationService notificationService;
+    private final PushNotificationService pushNotificationService;
 
-    public FollowService(FollowRepository followRepository, UserRepository userRepository, NotificationService notificationService) {
+    public FollowService(FollowRepository followRepository, UserRepository userRepository, NotificationService notificationService, PushNotificationService pushNotificationService) {
         this.followRepository = followRepository;
         this.userRepository = userRepository;
         this.notificationService = notificationService;
+        this.pushNotificationService = pushNotificationService;
     }
 
     @Transactional
@@ -67,7 +69,9 @@ public class FollowService {
 
          notificationService.createNotification(followingId , followerId , NotificationType.FOLLOW , follow.getId());
 
-         return true;
+        pushNotificationService.sendNotification(followingId , "New Follower" , follower.getUsername() + " started Following you!");
+
+        return true;
 
     }
 

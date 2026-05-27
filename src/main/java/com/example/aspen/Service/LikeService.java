@@ -1,11 +1,11 @@
 package com.example.aspen.Service;
 
+import com.example.aspen.CustomException.ResourceNotFoundException;
 import com.example.aspen.Entities.Like;
 import com.example.aspen.Entities.NotificationType;
 import com.example.aspen.Entities.Post;
 import com.example.aspen.Entities.User;
 import com.example.aspen.Repository.LikeRepository;
-import com.example.aspen.Repository.NotificationRepository;
 import com.example.aspen.Repository.PostRepository;
 import com.example.aspen.Repository.UserRepository;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,12 +22,14 @@ public class LikeService {
     private final UserRepository userRepository;
     private final PostRepository postRepository;
     private final NotificationService notificationService;
+    private final PushNotificationService pushNotificationService;
 
-    public LikeService(LikeRepository likeRepository, UserRepository userRepository, PostRepository postRepository, NotificationService notificationService){
+    public LikeService(LikeRepository likeRepository, UserRepository userRepository, PostRepository postRepository, NotificationService notificationService, PushNotificationService pushNotificationService){
         this.likeRepository = likeRepository;
         this.userRepository = userRepository;
         this.postRepository = postRepository;
         this.notificationService = notificationService;
+        this.pushNotificationService = pushNotificationService;
     }
 
     @Transactional
@@ -36,7 +38,7 @@ public class LikeService {
         Optional<Like> existing = likeRepository.findByUserIdAndPostId(userId, postId);
 
         Post post = postRepository.findById(postId)
-                .orElseThrow(()-> new RuntimeException("Post Not Found"));
+                .orElseThrow(()-> new ResourceNotFoundException("Post Not Found"));
 
         if(existing.isPresent()){
            likeRepository.delete(existing.get());
@@ -47,9 +49,7 @@ public class LikeService {
            return false;
         }
 
-        User user = userRepository.getReferenceById(userId);
-        // a optimized way to get user by not calling the complete object
-        // this is called proxy object jiske paas sirf id hota no other fields
+        User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("Not a Valid User"));
         Like like = new Like(user,post);
 
         likeRepository.save(like);
@@ -65,7 +65,10 @@ public class LikeService {
                     postId
             );
 
+            pushNotificationService.sendNotification(post.getUser().getId(), "New Like" , user.getUsername() + " liked your Post!");
+
         }
+
         return true;
 
     }
@@ -73,17 +76,5 @@ public class LikeService {
     public long likeCount( UUID postId){
         return likeRepository.countByPostId(postId);
     }
-
-
-
-
-
-
-
-
-
-
-
-
 
 }

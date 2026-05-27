@@ -5,10 +5,7 @@ package com.example.aspen.Service;
 import com.example.aspen.CustomException.ResourceNotFoundException;
 import com.example.aspen.Dto.CommentResponse;
 import com.example.aspen.Dto.PagedResponse;
-import com.example.aspen.Entities.Comment;
-import com.example.aspen.Entities.NotificationType;
-import com.example.aspen.Entities.Post;
-import com.example.aspen.Entities.User;
+import com.example.aspen.Entities.*;
 import com.example.aspen.Repository.CommentRepository;
 import com.example.aspen.Repository.PostRepository;
 import com.example.aspen.Repository.UserRepository;
@@ -30,13 +27,15 @@ public class CommentService {
     private final UserRepository userRepository;
     private final CommentRepository commentRepository;
     private final NotificationService notificationService;
+    private final PushNotificationService pushNotificationService;
 
 
-    public CommentService(PostRepository postRepository, UserRepository userRepository, CommentRepository commentRepository, NotificationService notificationService) {
+    public CommentService(PostRepository postRepository, UserRepository userRepository, CommentRepository commentRepository, NotificationService notificationService, PushNotificationService pushNotificationService) {
         this.postRepository = postRepository;
         this.userRepository = userRepository;
         this.commentRepository = commentRepository;
         this.notificationService = notificationService;
+        this.pushNotificationService = pushNotificationService;
     }
 
 
@@ -62,6 +61,13 @@ public class CommentService {
 
         if(!post.getUser().getId().equals(userId)) {
             notificationService.createNotification(post.getUser().getId() , userId , NotificationType.COMMENT , comment.getId());
+
+                pushNotificationService.sendNotification(
+                        post.getUser().getId(),
+                        "New Comment",
+                        user.getUsername() + " commented on your post!"
+                        );
+
         }
     }
 
