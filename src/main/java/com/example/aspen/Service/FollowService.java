@@ -5,6 +5,8 @@ import com.example.aspen.CustomException.ResourceNotFoundException;
 import com.example.aspen.Dto.PagedResponse;
 import com.example.aspen.Dto.UserSummaryDto;
 import com.example.aspen.Entities.Follow;
+import com.example.aspen.Entities.Notification;
+import com.example.aspen.Entities.NotificationType;
 import com.example.aspen.Entities.User;
 import com.example.aspen.Repository.FollowRepository;
 import com.example.aspen.Repository.UserRepository;
@@ -24,10 +26,12 @@ public class FollowService {
 
     private final FollowRepository followRepository;
     private final UserRepository userRepository;
+    private final NotificationService notificationService;
 
-    public FollowService(FollowRepository followRepository, UserRepository userRepository) {
+    public FollowService(FollowRepository followRepository, UserRepository userRepository, NotificationService notificationService) {
         this.followRepository = followRepository;
         this.userRepository = userRepository;
+        this.notificationService = notificationService;
     }
 
     @Transactional
@@ -60,6 +64,8 @@ public class FollowService {
 
          follower.setFollowingCount(follower.getFollowingCount() + 1);
          following.setFollowersCount(following.getFollowersCount() + 1);
+
+         notificationService.createNotification(followingId , followerId , NotificationType.FOLLOW , follow.getId());
 
          return true;
 
@@ -122,7 +128,4 @@ public class FollowService {
 
 
     }
-
-
-
 }

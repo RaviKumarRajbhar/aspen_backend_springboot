@@ -6,7 +6,6 @@ import com.example.aspen.Dto.Mapper.NotificationMapper;
 import com.example.aspen.Dto.NotificationResponse;
 import com.example.aspen.Entities.Notification;
 import com.example.aspen.Entities.NotificationType;
-import com.example.aspen.Entities.User;
 import com.example.aspen.Repository.NotificationRepository;
 import com.example.aspen.Repository.UserRepository;
 import org.springframework.stereotype.Service;

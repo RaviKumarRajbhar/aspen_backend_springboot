@@ -42,4 +42,12 @@ public class Follow {
     public User getFollowing() {
         return following;
     }
+
+    public UUID getId() {
+        return id;
+    }
+
+    public void setId(UUID id) {
+        this.id = id;
+    }
 }

@@ -41,7 +41,7 @@ public class LikeService {
         if(existing.isPresent()){
            likeRepository.delete(existing.get());
 
-           post.setLikeCount(post.getLikeCount() - 1);
+           post.setLikeCount(Math.max(post.getLikeCount() - 1 , 0));
 
            notificationService.deleteLikeNotification(userId , postId );
            return false;

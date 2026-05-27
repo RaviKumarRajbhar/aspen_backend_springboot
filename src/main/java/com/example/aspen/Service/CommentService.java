@@ -1,16 +1,18 @@
 package com.example.aspen.Service;
 
 
+
+import com.example.aspen.CustomException.ResourceNotFoundException;
 import com.example.aspen.Dto.CommentResponse;
 import com.example.aspen.Dto.PagedResponse;
 import com.example.aspen.Entities.Comment;
+import com.example.aspen.Entities.NotificationType;
 import com.example.aspen.Entities.Post;
 import com.example.aspen.Entities.User;
 import com.example.aspen.Repository.CommentRepository;
 import com.example.aspen.Repository.PostRepository;
 import com.example.aspen.Repository.UserRepository;
-import jakarta.transaction.Transactional;
-import org.springframework.boot.autoconfigure.graphql.GraphQlProperties;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -19,7 +21,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -28,12 +29,14 @@ public class CommentService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
     private final CommentRepository commentRepository;
+    private final NotificationService notificationService;
 
 
-    public CommentService(PostRepository postRepository, UserRepository userRepository, CommentRepository commentRepository) {
+    public CommentService(PostRepository postRepository, UserRepository userRepository, CommentRepository commentRepository, NotificationService notificationService) {
         this.postRepository = postRepository;
         this.userRepository = userRepository;
         this.commentRepository = commentRepository;
+        this.notificationService = notificationService;
     }
 
 
@@ -48,10 +51,8 @@ public class CommentService {
             );
         }
 
-        User user = userRepository.getReferenceById(userId);
-        Post post = postRepository.getReferenceById(postId);
-
-
+        User user = userRepository.findById(userId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND , "User not Found"));
+        Post post = postRepository.findById(postId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND , "Post not Found"));
 
         Comment comment = new Comment(user,post,content);
 
@@ -59,7 +60,9 @@ public class CommentService {
 
         post.setCommentCount(post.getCommentCount() + 1);
 
-
+        if(!post.getUser().getId().equals(userId)) {
+            notificationService.createNotification(post.getUser().getId() , userId , NotificationType.COMMENT , comment.getId());
+        }
     }
 
 
@@ -81,11 +84,11 @@ public class CommentService {
 
         commentRepository.delete(comment);
 
-        post.setCommentCount(post.getCommentCount() - 1);
+        post.setCommentCount(Math.max(post.getCommentCount() - 1 , 0));
     }
 
 
-    @org.springframework.transaction.annotation.Transactional(readOnly = true)
+    @Transactional(readOnly = true)
     public PagedResponse<CommentResponse> getComments(UUID postId , int page , int size) {
 
         Pageable pageable = PageRequest.of(page , size , Sort.by("createdAt").descending());
@@ -109,7 +112,7 @@ public class CommentService {
     }
 
     public Comment getCommentById(UUID commentId){
-        return commentRepository.findById(commentId).orElseThrow(() -> new RuntimeException("Comment not Found"));
+        return commentRepository.findById(commentId).orElseThrow(() -> new ResourceNotFoundException("Comment not Found"));
     }
 
 
