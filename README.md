@@ -39,6 +39,9 @@ This project focuses on secure authentication, scalable backend architecture, ca
 - Paginated User Posts
 - Paginated Comments
 - Paginated Followers & Following
+- Real-time Push Notification using Firebase FCM
+- Multi-device Notification Support
+- Device Token Registration & Management
 
 ---
 
@@ -53,6 +56,7 @@ This project follows layered architecture:
 - RESTful API Design
 - Pagination
 - Redis Based Rate Limiting (Fixed Window)
+- Multi-device Push Notification Infrastructure
 
 ---
 
@@ -68,6 +72,7 @@ This project follows layered architecture:
 - JPA / Hibernate
 - Gradle
 - Gmail SMTP
+- Firebase Cloud Messaging (FCM)
 
 ---
 
@@ -138,6 +143,22 @@ Handles:
 - Follow Notifications
 - Paginated Notification Fetching
 
+## Notification Flow
+
+Aspen supports real-time notification delivery using Firebase Cloud Messaging (FCM).
+
+Notification workflow:
+
+1. User performs action (Like / Comment / Follow)
+2. Notification entity stored in PostgreSQL
+3. Receiver device tokens fetched
+4. Push notification sent to all active devices
+
+Supports:
+- Multi-device notification delivery
+- Notification persistence
+- Real-time push delivery
+
 ---
 
 ## Environment Variables
@@ -169,3 +190,11 @@ Verify running containers:
 ```bash
 docker ps
 ```
+
+## Local Setup
+
+1. Clone repository
+2. Configure environment variables
+3. Add Firebase Admin SDK JSON file
+4. Start PostgreSQL & Redis
+5. Run application
