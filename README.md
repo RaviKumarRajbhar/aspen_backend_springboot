@@ -31,6 +31,10 @@ This project focuses on secure authentication, scalable backend architecture, ca
 - Comment on Posts
 - Follow / Unfollow Users
 - Following-based feed generation
+- Notifications for Likes
+- Notifications for Follows
+- Notifications for Comments
+- Get User Notifications
 - Paginated Feed
 - Paginated User Posts
 - Paginated Comments
@@ -126,6 +130,13 @@ Handles:
 - Following-based feed generation
 - Displays posts from followed users
 - Feed Pagination
+
+### Notification Module
+Handles:
+- Like Notifications
+- Comment Notifications
+- Follow Notifications
+- Paginated Notification Fetching
 
 ---
 
