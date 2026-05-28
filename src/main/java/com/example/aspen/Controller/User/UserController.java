@@ -1,12 +1,11 @@
 package com.example.aspen.Controller.User;
 
+import com.example.aspen.Dto.UpdateProfileRequest;
 import com.example.aspen.Dto.UserDetailsResponse;
 import com.example.aspen.Service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
@@ -31,5 +30,15 @@ public class UserController {
 
         return ResponseEntity.ok(response);
 
+    }
+
+    @PostMapping("update")
+    public ResponseEntity<UserDetailsResponse> updateProfile (@RequestBody UpdateProfileRequest request , Authentication authentication) {
+
+        String userIdStr = authentication.getPrincipal().toString();
+        UUID userId = UUID.fromString(userIdStr);
+
+        UserDetailsResponse response = userService.updateProfile(request , userId);
+        return  ResponseEntity.ok(response);
     }
 }
