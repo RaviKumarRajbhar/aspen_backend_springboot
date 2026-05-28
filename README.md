@@ -20,7 +20,7 @@ This project focuses on secure authentication, scalable backend architecture, ca
 - Protected Routes
 - Redis Based Rate Limiting (Fixed Window)
 - Redis Based Password Reset System
-- Asynchronous Email Sending
+
 
 
 ---
@@ -57,6 +57,17 @@ This project follows layered architecture:
 - Pagination
 - Redis Based Rate Limiting (Fixed Window)
 - Multi-device Push Notification Infrastructure
+- Composite Database Indexing
+- Query Optimization for Feed & Notifications
+- Asynchronous Email Sending
+- Asynchronous Notification Sending
+
+### Performance Optimizations
+- Redis Based User Caching
+- Database Query Optimization using Composite Indexes
+- Feed Query Optimization
+- Notification Query Optimization
+- Optimized Pagination Queries
 
 ---
 
@@ -73,6 +84,17 @@ This project follows layered architecture:
 - Gradle
 - Gmail SMTP
 - Firebase Cloud Messaging (FCM)
+
+---
+## Redis Usage
+
+Redis is used for:
+
+- OTP Storage
+- Refresh Token Management
+- Password Reset Token Storage
+- API Rate Limiting
+- User Response Caching
 
 ---
 
@@ -135,6 +157,7 @@ Handles:
 - Following-based feed generation
 - Displays posts from followed users
 - Feed Pagination
+- Optimized Feed Queries using Composite Indexes
 
 ### Notification Module
 Handles:
@@ -142,6 +165,7 @@ Handles:
 - Comment Notifications
 - Follow Notifications
 - Paginated Notification Fetching
+- Persistent Notification Storage
 
 ## Notification Flow
 
