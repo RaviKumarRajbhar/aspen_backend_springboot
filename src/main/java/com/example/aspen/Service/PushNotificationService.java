@@ -6,6 +6,7 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;
 import com.google.firebase.messaging.Notification;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,6 +22,7 @@ public class PushNotificationService {
         this.tokenRepository = tokenRepository;
     }
 
+    @Async("taskExecutor")
     public void sendNotification(UUID receiverId , String title , String body) {
 
         System.out.println("PUSH SERVICE CALLED");

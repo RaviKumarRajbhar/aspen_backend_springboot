@@ -6,7 +6,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-@Async
+
 @Service
 public class MailService {
 
@@ -16,6 +16,7 @@ public class MailService {
         this.mailSender = mailSender;
     }
 
+    @Async("taskExecutor")
     public void sendOtp(String email , String otp) {
 
         SimpleMailMessage message = new SimpleMailMessage();
@@ -26,6 +27,7 @@ public class MailService {
         mailSender.send(message);
     }
 
+    @Async("taskExecutor")
     public void sendResetEmail(String email, String token) {
 
         SimpleMailMessage message = new SimpleMailMessage();
