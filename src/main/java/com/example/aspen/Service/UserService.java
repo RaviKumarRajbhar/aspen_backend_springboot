@@ -7,6 +7,8 @@ import com.example.aspen.Dto.UpdateProfileRequest;
 import com.example.aspen.Dto.UserDetailsResponse;
 import com.example.aspen.Entities.User;
 import com.example.aspen.Repository.UserRepository;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -23,7 +25,10 @@ public class UserService {
     }
 
 
-    public UserDetailsResponse findUserById(UUID id){
+    @Cacheable(value = "users" , key = "#p0")
+    public UserDetailsResponse getUserById(UUID id){
+
+        System.out.println("DB HIT");
 
         final User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User Not Found"));
 
@@ -31,6 +36,7 @@ public class UserService {
 
     }
 
+    @CacheEvict(value = "users" , key = "#p1")
     public UserDetailsResponse updateProfile(UpdateProfileRequest request , UUID userId) {
 
         User existingUser = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User Not Found"));

@@ -1,4 +1,4 @@
-package com.example.aspen.Security;
+package com.example.aspen.Configuration;
 
 
 
@@ -22,7 +22,7 @@ public class RedisConfig {
     public RedisTemplate<String , String> redisTemplate(RedisConnectionFactory factory){
         RedisTemplate<String , String > template = new RedisTemplate<>();
 
-        template.setConnectionFactory(redisConnectionFactory());
+        template.setConnectionFactory(factory);
 
         template.setKeySerializer(new StringRedisSerializer());
 

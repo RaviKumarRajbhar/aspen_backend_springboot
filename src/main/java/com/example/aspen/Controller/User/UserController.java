@@ -26,7 +26,7 @@ public class UserController {
         String userIdStr = (String) authentication.getPrincipal();
         UUID userId = UUID.fromString(userIdStr);
 
-        UserDetailsResponse response = userService.findUserById(userId);
+        UserDetailsResponse response = userService.getUserById(userId);
 
         return ResponseEntity.ok(response);
 

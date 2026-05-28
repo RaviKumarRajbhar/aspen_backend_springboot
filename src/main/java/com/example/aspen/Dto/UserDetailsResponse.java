@@ -1,8 +1,9 @@
 package com.example.aspen.Dto;
 
+import java.io.Serializable;
 import java.util.UUID;
 
-public class UserDetailsResponse {
+public class UserDetailsResponse implements Serializable {
 
 
     private UUID userId;
