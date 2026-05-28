@@ -6,6 +6,10 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
+@Table(indexes = {
+        @Index(name = "idx_notification_receiver_created" , columnList = "receiver_id , created_at"),
+        @Index(name = "idx_notification_sender_reference_type" , columnList = "sender_id , reference_id , type")
+})
 public class Notification {
 
     @Id

@@ -57,7 +57,7 @@ public class AuthService {
         User user = userRepository.findByEmail(email).orElseGet(() -> {
                     User newUser = new User();
                     newUser.setEmail(email);
-                    newUser.setUsername(name);
+                    newUser.setUsername(generateUniqueUsername(name));
                     newUser.setAuthProvider(AuthProvider.GOOGLE); // google login
 
 
@@ -97,13 +97,8 @@ public class AuthService {
 
         String hashedPassword = passwordEncoder.encode(request.getPassword());
 
-        String username = request.getUsername();
+        String username = generateUniqueUsername(request.getUsername());
 
-        if (username == null || username.isBlank()){
-            username = "user_" + UUID.randomUUID()
-                    .toString()
-                    .substring(0,8);
-        }
 
         String otp = otpService.generateOtp();
 
@@ -237,5 +232,22 @@ public class AuthService {
         refreshTokenService.deleteToken(userId);
     }
 
+    private String generateUniqueUsername( String baseName ) {
 
+        if(baseName == null || baseName.isBlank()) {
+            baseName = "user";
+        }
+        String cleaned = baseName.replaceAll("\\s+" , "")
+                .toLowerCase();
+
+        String username;
+
+        do {
+            String randomPart = UUID.randomUUID().toString().substring(0,5);
+
+            username = cleaned + "_" + randomPart;
+        } while (userRepository.existsByUsername(username));
+
+        return username;
+    }
 }

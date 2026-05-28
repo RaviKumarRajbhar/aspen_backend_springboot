@@ -6,7 +6,9 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "follows", uniqueConstraints = @UniqueConstraint(columnNames = {"follower_id" , "following_id"}))
+@Table(name = "follows",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"follower_id" , "following_id"}),
+        indexes = { @Index(name = "idx_following_id" , columnList = "following_id") })
 public class Follow {
 
     @Id

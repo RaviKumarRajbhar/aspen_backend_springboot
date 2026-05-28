@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "user_device_tokens")
+@Table(name = "user_device_tokens" , indexes = {@Index(name = "idx_device_user_active" , columnList = "user_id , is_active")})
 public class UserDeviceToken {
 
     @Id

@@ -10,7 +10,7 @@ import java.util.UUID;
 
 @Entity
 @EntityListeners(AuditingEntityListener.class)
-@Table(name = "comments")
+@Table(name = "comments" , indexes = { @Index(name = "idx_comment_post_created" , columnList = "post_id , created_at")})
 public class Comment {
 
     protected Comment(){}

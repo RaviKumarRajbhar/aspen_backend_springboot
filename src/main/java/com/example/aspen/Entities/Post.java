@@ -12,7 +12,9 @@ import java.util.UUID;
 
 @Entity
 @EntityListeners(AuditingEntityListener.class)
-@Table(name = "posts")
+@Table(name = "posts" , indexes = {
+        @Index(name = "idx_post_user_created" , columnList = "user_id , created_at")
+})
 public class Post {
 
 
