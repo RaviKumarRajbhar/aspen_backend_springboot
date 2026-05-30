@@ -13,7 +13,7 @@ import java.util.UUID;
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 @Table(name = "posts" , indexes = {
-        @Index(name = "idx_post_user_created" , columnList = "user_id , created_at")
+        @Index(name = "idx_post_feed_cursor" , columnList = "user_id , created_at , id")
 })
 public class Post {
 

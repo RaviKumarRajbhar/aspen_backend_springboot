@@ -1,5 +1,6 @@
 package com.example.aspen.Controller.Feed;
 
+import com.example.aspen.Dto.FeedResponse;
 import com.example.aspen.Dto.PagedResponse;
 import com.example.aspen.Dto.PostResponse;
 import com.example.aspen.Service.FeedService;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 
@@ -25,16 +27,16 @@ public class FeedController {
 
 
     @GetMapping()
-    public ResponseEntity<PagedResponse<PostResponse>> getPagedFeed (
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "5") int size,
+    public ResponseEntity<FeedResponse> getPagedFeed (
+            @RequestParam(required = false) LocalDateTime cursorCreatedAt,
+            @RequestParam(required = false) UUID cursorId,
             Authentication authentication
     ) {
 
         String userIdStr = (String) authentication.getPrincipal();
         UUID userId = UUID.fromString(userIdStr);
 
-        PagedResponse<PostResponse> response = feedService.getFeed( userId , page , size);
+        FeedResponse response = feedService.getFeedCursor( userId , cursorCreatedAt , cursorId);
 
         return ResponseEntity.ok(response);
 
