@@ -34,9 +34,11 @@ private static  final  Map<String , RateLimitRule > RATE_LIMIT_RULES =
 
                 "/posts" , new RateLimitRule(10 , 60),
 
-                "/comments" , new RateLimitRule(20 , 60),
+                "/comment" , new RateLimitRule(20 , 60),
 
-                "/likes" , new RateLimitRule(100 , 60)
+                "/like" , new RateLimitRule(100 , 60),
+
+                "/follow" , new RateLimitRule(30 , 60)
         );
 
     public RateLimitingFilter(  RateLimiterService rateLimiterService, ObjectMapper objectMapper) {
@@ -51,6 +53,7 @@ private static  final  Map<String , RateLimitRule > RATE_LIMIT_RULES =
         String path = request.getServletPath();
 
         RateLimitRule rule = null;
+        String matchedRule = null;
 
         for (Map.Entry<String, RateLimitRule> entry
                 : RATE_LIMIT_RULES.entrySet()) {
@@ -58,6 +61,7 @@ private static  final  Map<String , RateLimitRule > RATE_LIMIT_RULES =
             if (path.startsWith(entry.getKey())) {
 
                 rule = entry.getValue();
+                matchedRule = entry.getKey();
 
                 break;
             }
@@ -72,7 +76,9 @@ private static  final  Map<String , RateLimitRule > RATE_LIMIT_RULES =
         String identifier = getIdentifier(request);
 
         String redisKey = "rate_limit:"
-                + path.replace("/" , "_")
+                + request.getMethod()
+                + ":"
+                + matchedRule.replace("/" , "_")
                 + ":"
                 +identifier;
 
