@@ -11,6 +11,7 @@ import com.example.aspen.Repository.UserRepository;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -44,8 +45,6 @@ public class LikeService {
            likeRepository.delete(existing.get());
 
            post.setLikeCount(Math.max(post.getLikeCount() - 1 , 0));
-
-           notificationService.deleteLikeNotification(userId , postId );
            return false;
         }
 
@@ -58,23 +57,25 @@ public class LikeService {
 
         if(!post.getUser().getId().equals(userId)){
 
-            notificationService.createNotification(
-                    post.getUser().getId(),
+            boolean recentlyNotified = notificationService.hasRecentLikeNotification(
                     userId,
-                    NotificationType.LIKE,
-                    postId
-            );
+                    post.getUser().getId(),
+                    postId,
+                    Duration.ofHours(24));
 
-            pushNotificationService.sendNotification(post.getUser().getId(), "New Like" , user.getUsername() + " liked your Post!");
+            if (!recentlyNotified) {
 
+                notificationService.createNotification(
+                        post.getUser().getId(),
+                        userId,
+                        NotificationType.LIKE,
+                        postId );
+
+                pushNotificationService.sendNotification(post.getUser().getId(), "New Like", user.getUsername() + " liked your Post!");
+            }
         }
 
         return true;
 
     }
-
-    public long likeCount( UUID postId){
-        return likeRepository.countByPostId(postId);
-    }
-
 }

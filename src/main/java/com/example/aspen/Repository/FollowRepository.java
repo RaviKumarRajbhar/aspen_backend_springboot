@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 import java.util.UUID;
@@ -25,7 +26,12 @@ public interface FollowRepository
     Page<Follow> findByFollowingId( UUID followingId,Pageable pageable);
 
 
-    List<Follow> findAllByFollowerId(UUID followerId);
+    @Query("""
+    select f.following.id
+    from Follow f
+    where f.follower.id = :followerId
+    """)
+    List<UUID> findFollowedUserIds(UUID followerId);
 
     // Following list
     @EntityGraph(attributePaths = {"following"})

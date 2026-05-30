@@ -17,6 +17,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -52,7 +53,7 @@ public class FollowService {
          if(alreadyFollowing) {
              followRepository.deleteByFollowerAndFollowing(follower, following);
 
-             follower.setFollowingCount(Math.max(0,following.getFollowingCount() - 1));
+             follower.setFollowingCount(Math.max(0,follower.getFollowingCount() - 1));
              following.setFollowersCount(Math.max(0,following.getFollowersCount() - 1));
 
              return false;
@@ -67,10 +68,19 @@ public class FollowService {
          follower.setFollowingCount(follower.getFollowingCount() + 1);
          following.setFollowersCount(following.getFollowersCount() + 1);
 
-         notificationService.createNotification(followingId , followerId , NotificationType.FOLLOW , follow.getId());
 
-        pushNotificationService.sendNotification(followingId , "New Follower" , follower.getUsername() + " started Following you!");
+         boolean recentlyNotified = notificationService.hasRecentFollowNotification(
+                 followerId,
+                 followingId,
+                 Duration.ofHours(24)
+         );
 
+         if (!recentlyNotified) {
+
+             notificationService.createNotification(followingId, followerId, NotificationType.FOLLOW, follow.getId());
+             pushNotificationService.sendNotification(followingId, "New Follower", follower.getUsername() + " started Following you!");
+
+         }
         return true;
 
     }

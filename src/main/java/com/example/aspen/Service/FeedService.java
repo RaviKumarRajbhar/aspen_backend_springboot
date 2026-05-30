@@ -1,17 +1,16 @@
 package com.example.aspen.Service;
 
+import com.example.aspen.Dto.FeedResponse;
 import com.example.aspen.Dto.Mapper.PostMapper;
-import com.example.aspen.Dto.PagedResponse;
 import com.example.aspen.Dto.PostResponse;
-import com.example.aspen.Entities.Follow;
+import com.example.aspen.Entities.Post;
 import com.example.aspen.Repository.FollowRepository;
 import com.example.aspen.Repository.PostRepository;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -29,55 +28,59 @@ public class FeedService {
     }
 
 
-
     @Transactional(readOnly = true)
-    public PagedResponse<PostResponse> getFeed(UUID userId , int page , int size) {
+    public FeedResponse getFeedCursor(UUID userId , LocalDateTime cursorCreatedAt , UUID cursorId) {
 
-        List<Follow> follows = followRepository.findAllByFollowerId(userId);
 
-        List<UUID> followedUserIds = follows.stream()
-                .map(follow ->
-                        follow.getFollowing().getId())
-                .toList();
+        List<UUID> followedUserIds = followRepository.findFollowedUserIds(userId);
 
-        if(followedUserIds.isEmpty()) {
+        FeedResponse response = new FeedResponse();
 
-            PagedResponse<PostResponse> emptyResponse = new PagedResponse<>();
+        if (followedUserIds.isEmpty()) {
+            response.setPosts(List.of());
+            response.setHasNext(false);
 
-            emptyResponse.setContent(List.of());
-            emptyResponse.setTotalPages(0);
-            emptyResponse.setHasNext(false);
-            emptyResponse.setTotalElements(0);
-            emptyResponse.setCurrentPage(0);
-
-            return emptyResponse;
+            return response;
         }
 
+        List<Post> posts;
 
-        Pageable pageable = PageRequest.of(
-                page,
-                size
-        );
+        if (cursorCreatedAt == null) {
+            posts = postRepository.getFirstFeedPage(
+                    followedUserIds,
+                    PageRequest.of(0 , 21)
+            );
+        } else {
+            posts = postRepository.getFeedAfterCursor(
+                    followedUserIds,
+                    cursorCreatedAt,
+                    cursorId,
+                    PageRequest.of(0,21)
+            );
+        }
 
-        Page<PostResponse> pageResult = postRepository.findByUserIdInOrderByCreatedAtDesc(followedUserIds, pageable)
-                .map(postMapper::toResponse);
+        boolean hasNext = posts.size() > 20 ;
 
-//        Page<PostResponse> pageResult =  postRepository.findAll(pageable)
-//                .map(postMapper::toResponse);
+        if (hasNext) {
+            posts.removeLast();
+        }
 
-        PagedResponse<PostResponse> response = new PagedResponse<>();
+        List<PostResponse> responses = posts.stream()
+                .map(postMapper::toResponse)
+                .toList();
 
-        response.setContent(pageResult.getContent());
-        response.setCurrentPage(pageResult.getNumber());
-        response.setTotalPages(pageResult.getTotalPages());
-        response.setHasNext(pageResult.hasNext());
-        response.setTotalElements(pageResult.getTotalElements());
+        response.setHasNext(hasNext);
+        response.setPosts(responses);
+
+        if (!posts.isEmpty()) {
+            Post lastPost = posts.getLast();
+
+            response.setNextCursorCreatedAt(lastPost.getCreatedAt());
+
+            response.setNextCursorId(lastPost.getId());
+        }
 
         return response;
-
-
-//        return postRepository.findAll(pageable) // causes problem - LazyInitializationException dur to proxy object
-//                .map(postMapper::toResponse);
     }
 
 }

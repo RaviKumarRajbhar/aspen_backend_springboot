@@ -10,8 +10,10 @@ import com.example.aspen.Repository.NotificationRepository;
 import com.example.aspen.Repository.UserRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -54,5 +56,32 @@ public class NotificationService {
     public void deleteLikeNotification(UUID senderId , UUID postId) {
 
         notificationRepository.deleteBySenderIdAndReferenceIdAndType(senderId , postId , NotificationType.LIKE);
+    }
+
+    public boolean hasRecentLikeNotification(
+            UUID senderId,
+            UUID receiverId,
+            UUID referenceId,
+            Duration cooldown
+    ) {
+        return notificationRepository.existsBySenderIdAndReceiverIdAndReferenceIdAndTypeAndCreatedAtAfter(
+                senderId,
+                receiverId,
+                referenceId,
+                NotificationType.LIKE,
+                LocalDateTime.now().minus(cooldown));
+    }
+
+    public boolean hasRecentFollowNotification(
+            UUID senderId,
+            UUID receiverId,
+            Duration cooldown
+    ) {
+        return notificationRepository.existsBySenderIdAndReceiverIdAndTypeAndCreatedAtAfter(
+                senderId,
+                receiverId,
+                NotificationType.FOLLOW,
+                LocalDateTime.now().minus(cooldown)
+        );
     }
 }
