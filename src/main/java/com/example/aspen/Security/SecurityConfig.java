@@ -40,13 +40,8 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers(
-                                "/test-notification"
-                        ).permitAll()
-                        .requestMatchers(
-                                "/oauth2/**",
-                                         "/login/**"
-                        ).permitAll()
+                        .requestMatchers("/oauth2/**","/login/**").permitAll()
+                        .requestMatchers("/ws/**").permitAll()
                         .requestMatchers("/uploads/**")
                         .permitAll()
 
