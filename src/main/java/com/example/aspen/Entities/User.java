@@ -37,6 +37,10 @@ public class User{
     @Column(nullable = false)
     private String bio = "";
 
+    private boolean online;
+
+    private LocalDateTime lastSeenAt;
+
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY , cascade = CascadeType.REMOVE)
     private List<Post> posts;
 
@@ -176,5 +180,21 @@ public class User{
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public boolean isOnline() {
+        return online;
+    }
+
+    public void setOnline(boolean online) {
+        this.online = online;
+    }
+
+    public LocalDateTime getLastSeenAt() {
+        return lastSeenAt;
+    }
+
+    public void setLastSeenAt(LocalDateTime lastSeenAt) {
+        this.lastSeenAt = lastSeenAt;
     }
 }

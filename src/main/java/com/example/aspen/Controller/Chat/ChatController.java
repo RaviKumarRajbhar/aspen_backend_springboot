@@ -1,6 +1,7 @@
 package com.example.aspen.Controller.Chat;
 
 
+import com.example.aspen.Dto.ChatConversationResponse;
 import com.example.aspen.Dto.ChatHistoryResponse;
 import com.example.aspen.Dto.ChatMessageResponse;
 import com.example.aspen.Service.ChatService;
@@ -32,4 +33,23 @@ public class ChatController {
 
         return ResponseEntity.ok(chatService.getConversationCursor(currentUserId , otherUserId , cursorCreatedAt , cursorId));
     }
+
+    @PostMapping("/seen/{otherUserId}")
+    public  ResponseEntity<Void> markMessagesAsSeen(@PathVariable UUID otherUserId , Authentication authentication ){
+        String userIdStr = authentication.getPrincipal().toString();
+        UUID userId = UUID.fromString(userIdStr);
+        chatService.markMessagesAsSeen(userId , otherUserId);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/conversations")
+    public ResponseEntity<List<ChatConversationResponse>> getConversations(Authentication authentication) {
+
+        String userIdStr = authentication.getPrincipal().toString();
+        UUID userId = UUID.fromString(userIdStr);
+
+        return ResponseEntity.ok(chatService.getConversations(userId));
+    }
+
 }

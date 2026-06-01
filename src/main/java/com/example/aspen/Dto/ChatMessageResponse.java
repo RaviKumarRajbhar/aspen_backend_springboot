@@ -1,5 +1,7 @@
 package com.example.aspen.Dto;
 
+import com.example.aspen.Entities.MessageStatus;
+
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -14,6 +16,8 @@ public class ChatMessageResponse {
     private UUID receiverId;
 
     private String content;
+
+    private MessageStatus status;
 
     private LocalDateTime createdAt;
 
@@ -63,5 +67,13 @@ public class ChatMessageResponse {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public MessageStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(MessageStatus status) {
+        this.status = status;
     }
 }

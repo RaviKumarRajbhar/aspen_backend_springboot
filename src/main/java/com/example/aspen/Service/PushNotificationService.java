@@ -25,7 +25,6 @@ public class PushNotificationService {
     @Async("taskExecutor")
     public void sendNotification(UUID receiverId , String title , String body) {
 
-        System.out.println("PUSH SERVICE CALLED");
 
         List<UserDeviceToken> devices = tokenRepository.findByUserIdAndIsActiveTrue(receiverId);
 

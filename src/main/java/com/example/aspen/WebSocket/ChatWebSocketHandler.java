@@ -1,8 +1,10 @@
 package com.example.aspen.WebSocket;
 
+import com.example.aspen.CustomException.ResourceNotFoundException;
 import com.example.aspen.Dto.ChatMessagePayload;
 import com.example.aspen.Dto.ChatMessageResponse;
 import com.example.aspen.Entities.ChatMessage;
+import com.example.aspen.Entities.MessageStatus;
 import com.example.aspen.Entities.User;
 import com.example.aspen.Repository.ChatMessageRepository;
 import com.example.aspen.Repository.UserRepository;
@@ -13,6 +15,8 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Component
@@ -42,7 +46,20 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
 
         sessionManager.addSession( userId, session );
 
-        System.out.println("User Connected : " + userId);
+
+        List<ChatMessage> pendingMessages = chatMessageRepository.findPendingMessages(userId);
+
+        for (ChatMessage message : pendingMessages) {
+            message.setStatus(MessageStatus.DELIVERED);
+        }
+        chatMessageRepository.saveAll(pendingMessages);
+
+
+        User user = userRepository.findById(userId)
+                .orElseThrow();
+
+        user.setOnline(true);
+        userRepository.save(user);
 
     }
 
@@ -64,8 +81,9 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
         chatMessage.setSender(sender);
         chatMessage.setReceiver(receiver);
         chatMessage.setContent(payload.getContent());
+        chatMessage.setStatus(MessageStatus.SENT);
 
-        chatMessageRepository.save(chatMessage);
+        chatMessage = chatMessageRepository.save(chatMessage);
 
         ChatMessageResponse response = new ChatMessageResponse();
 
@@ -75,21 +93,40 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
         response.setReceiverId(receiver.getId());
         response.setContent(chatMessage.getContent());
         response.setCreatedAt(chatMessage.getCreatedAt());
+        response.setStatus(chatMessage.getStatus());
 
 
-        if (sessionManager.isOnline(receiver.getId())){
+        if (sessionManager.isOnline(receiver.getId())) {
 
-            WebSocketSession receiverSession = sessionManager.getSession(receiver.getId());
+            WebSocketSession receiverSession =
+                    sessionManager.getSession(receiver.getId());
 
-            String json = objectMapper.writeValueAsString(response);
+            if (receiverSession != null
+                    && receiverSession.isOpen()) {
 
-            receiverSession.sendMessage(new TextMessage(json));
+                chatMessage.setStatus(
+                        MessageStatus.DELIVERED
+                );
+
+                chatMessageRepository.save(
+                        chatMessage
+                );
+
+                response.setStatus(
+                        MessageStatus.DELIVERED
+                );
+
+                String json =
+                        objectMapper.writeValueAsString(
+                                response
+                        );
+
+                receiverSession.sendMessage(
+                        new TextMessage(json)
+                );
+            }
         }
 
-
-        System.out.println("Receiver : " + payload.getReceiverId());
-
-        System.out.println("Message : " + payload.getContent());
     }
 
     @Override public void afterConnectionClosed (WebSocketSession session , CloseStatus status ) throws Exception {
@@ -100,7 +137,14 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
 
         sessionManager.removeSession(userId);
 
-        System.out.println("User Disconneted : " + userId);
+        User user = userRepository.findById(userId)
+                .orElseThrow();
+
+        user.setOnline(false);
+        user.setLastSeenAt(LocalDateTime.now());
+
+        userRepository.save(user);
+
     }
 
 

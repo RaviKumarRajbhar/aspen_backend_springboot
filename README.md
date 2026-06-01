@@ -42,6 +42,16 @@ This project focuses on secure authentication, scalable backend architecture, ca
 - Real-time Push Notification using Firebase FCM
 - Multi-device Notification Support
 - Device Token Registration & Management
+- JWT Secured WebSocket Authentication
+- One-to-One Messaging
+- Chat History Retrieval
+- Cursor Based Chat Pagination
+- Conversation List API
+- Unread Message Count
+- Message Status Tracking (SENT / DELIVERED / SEEN)
+- Offline Message Delivery
+- Online Presence Tracking
+- Last Seen Tracking
 
 ---
 
@@ -61,6 +71,7 @@ This project follows layered architecture:
 - Query Optimization for Feed & Notifications
 - Asynchronous Email Sending
 - Asynchronous Notification Sending
+- WebSocket Based Real-Time Communication
 
 ### Performance Optimizations
 - Redis Based User Caching
@@ -84,6 +95,7 @@ This project follows layered architecture:
 - Gradle
 - Gmail SMTP
 - Firebase Cloud Messaging (FCM)
+- Spring WebSocket
 
 ---
 ## Redis Usage
@@ -158,6 +170,21 @@ Handles:
 - Displays posts from followed users
 - Feed Pagination
 - Optimized Feed Queries using Composite Indexes
+
+### Chat Module
+
+Handles:
+
+- One-to-One Messaging
+- WebSocket Authentication
+- Message Persistence
+- Chat History
+- Cursor Pagination
+- Conversation List
+- Unread Message Count
+- Message Status Management
+- Online Presence Tracking
+- Last Seen Tracking
 
 ### Notification Module
 Handles:

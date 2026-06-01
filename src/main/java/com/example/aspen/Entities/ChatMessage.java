@@ -28,6 +28,12 @@ public class ChatMessage {
     @Column(nullable = false)
     private String content;
 
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private MessageStatus status = MessageStatus.SENT;
+
+
     @CreatedDate
     @Column(nullable = false , updatable = false)
     private LocalDateTime createdAt;
@@ -67,5 +73,13 @@ public class ChatMessage {
 
     public LocalDateTime getCreatedAt() {
         return createdAt;
+    }
+
+    public MessageStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(MessageStatus status) {
+        this.status = status;
     }
 }

@@ -1,6 +1,7 @@
 package com.example.aspen.Repository;
 
 import com.example.aspen.Entities.ChatMessage;
+import com.example.aspen.Entities.MessageStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -93,6 +94,43 @@ ORDER BY m.createdAt DESC , m.id DESC
             LocalDateTime cursorCreatedAt,
             UUID cursorId,
             Pageable pageable
+    );
+
+    @Query("""
+SELECT m 
+FROM ChatMessage m
+WHERE
+m.receiver.id = :userId
+AND
+m.status = com.example.aspen.Entities.MessageStatus.SENT
+""")
+    List<ChatMessage> findPendingMessages(UUID userId);
+
+
+    @Query("""
+SELECT m
+FROM ChatMessage m
+WHERE
+m.sender.id = :otherUserId
+AND
+m.receiver.id = :currentUserId
+AND
+m.status = com.example.aspen.Entities.MessageStatus.DELIVERED
+""")
+    List<ChatMessage> findDeliveredMessagesToMarkSeen(
+            UUID currentUserId,
+            UUID otherUserId
+    );
+
+    List<ChatMessage> findBySenderIdOrReceiverIdOrderByCreatedAtDesc(
+            UUID senderId,
+            UUID receiverId
+    );
+
+    long countBySenderIdAndReceiverIdAndStatusNot(
+            UUID senderId,
+            UUID receiverId,
+            MessageStatus status
     );
 
 

@@ -28,7 +28,6 @@ public class UserService {
     @Cacheable(value = "users" , key = "#p0")
     public UserDetailsResponse getUserById(UUID id){
 
-        System.out.println("DB HIT");
 
         final User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User Not Found"));
 
