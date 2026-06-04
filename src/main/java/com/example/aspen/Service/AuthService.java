@@ -212,7 +212,10 @@ public class AuthService {
             String newRefreshToken = jwtUtil.generateRefreshToken(userId);
 
             refreshTokenService.saveRefreshToken(userId, newRefreshToken);
+
+            System.out.println("Access token changed");
             return new LoginResponse(newAccessToken, newRefreshToken);
+
 
 
         } finally {

@@ -5,6 +5,7 @@ import com.example.aspen.Dto.Mapper.PostMapper;
 import com.example.aspen.Dto.PostResponse;
 import com.example.aspen.Entities.Post;
 import com.example.aspen.Repository.FollowRepository;
+import com.example.aspen.Repository.LikeRepository;
 import com.example.aspen.Repository.PostRepository;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -18,11 +19,13 @@ import java.util.UUID;
 public class FeedService {
 
     private final PostRepository postRepository;
+    private final LikeRepository likeRepository;
     private final PostMapper postMapper;
     private final FollowRepository followRepository;
 
-    public FeedService(PostRepository postRepository, PostMapper postMapper, FollowRepository followRepository) {
+    public FeedService(PostRepository postRepository, LikeRepository likeRepository, PostMapper postMapper, FollowRepository followRepository) {
         this.postRepository = postRepository;
+        this.likeRepository = likeRepository;
         this.postMapper = postMapper;
         this.followRepository = followRepository;
     }
@@ -66,8 +69,15 @@ public class FeedService {
         }
 
         List<PostResponse> responses = posts.stream()
-                .map(postMapper::toResponse)
-                .toList();
+                .map(post -> {
+
+                    PostResponse response1 = postMapper.toResponse(post);
+
+                    boolean likedByCurrentUser = likeRepository.findByUserIdAndPostId(userId , post.getId()).isPresent();
+                    response1.setLikedByCurrentUser(likedByCurrentUser);
+
+                    return response1;
+                }).toList();
 
         response.setHasNext(hasNext);
         response.setPosts(responses);

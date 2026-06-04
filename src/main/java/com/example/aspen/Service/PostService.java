@@ -9,8 +9,8 @@ import com.example.aspen.Entities.Post;
 import com.example.aspen.Entities.User;
 import com.example.aspen.Repository.PostRepository;
 import com.example.aspen.Repository.UserRepository;
-import com.example.aspen.Security.JwtUtil;
 import jakarta.transaction.Transactional;
+import org.springframework.cache.CacheManager;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -20,8 +20,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.io.File;
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -29,18 +27,22 @@ public class PostService {
 
     private final PostRepository postRepository;
     private final UserRepository userRepository;
-    private final JwtUtil jwtUtil;
+    private final CacheManager cacheManager;
     private final PostMapper postMapper;
+    private final FileStorageService fileStorageService;
 
     public PostService(
             PostRepository postRepository,
             UserRepository userRepository,
-            JwtUtil jwtUtil, PostMapper postMapper
+            CacheManager cacheManager,
+            PostMapper postMapper,
+            FileStorageService fileStorageService
     ) {
         this.postRepository = postRepository;
         this.userRepository = userRepository;
-        this.jwtUtil = jwtUtil;
+        this.cacheManager = cacheManager;
         this.postMapper = postMapper;
+        this.fileStorageService = fileStorageService;
     }
 
     @Transactional
@@ -50,24 +52,12 @@ public class PostService {
             MultipartFile image
     ) throws Exception {
 
-        String fileName = UUID.randomUUID() + "_" + image.getOriginalFilename();
+        System.out.println("POST SERVICE HIT");
 
-
-        String uploadDir =System.getProperty("user.dir") + File.separator + "uploads";
-
-        File folder = new File(uploadDir);
-
-        if (!folder.exists()) {folder.mkdirs();}
-
-        File destination = new File(folder,fileName);
-
-
-        image.transferTo(destination);
 
         User user =userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-
-        String imageUrl = "/uploads/" + fileName;
+        String imageUrl = fileStorageService.saveImage(image);
 
         Post post = new Post(user, request.getCaption());
 
@@ -77,10 +67,14 @@ public class PostService {
 
         postRepository.save(post);
 
+        user.setPostCount(user.getPostCount() + 1);
+        userRepository.save(user);
+
+        cacheManager.getCache("users")
+                        .evict(userId);
+
         return postMapper.toResponse(post);
     }
-
-
 
     public PagedResponse<PostResponse> getAllPostsByUserId(UUID userId , int page , int size) {
 
@@ -113,23 +107,33 @@ public class PostService {
 
 
     @Transactional
-    public void deletePost( UUID userId , UUID postId ) {
+    public void deletePost(UUID userId, UUID postId) {
 
         Post post = postRepository.findById(postId)
-                        .orElseThrow(() -> new ResourceNotFoundException("Post Not Found"));
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Post Not Found"));
 
         if (!post.getUser().getId().equals(userId)) {
 
-            throw new ResponseStatusException( HttpStatus.FORBIDDEN, "You are not allowed to delete this post");
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN,
+                    "You are not allowed to delete this post");
         }
 
-        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("User not found"));
 
-        user.setPostCount(user.getPostCount() - 1);
+        fileStorageService.deleteImage(post.getImageUrl());
+
+        postRepository.delete(post);
+
+        user.setPostCount(Math.max(user.getPostCount() - 1, 0));
 
         userRepository.save(user);
 
-        postRepository.delete(post);
+        cacheManager.getCache("users")
+                .evict(userId);
     }
 
 
@@ -137,7 +141,7 @@ public class PostService {
 
         if (newContent == null || newContent.trim().isEmpty()) {
 
-            throw new RuntimeException("Content cannot be empty");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST , "Content cannot be empty");
         }
 
         Post post = postRepository.findById(postId).orElseThrow(() -> new RuntimeException("Post no longer exists"));

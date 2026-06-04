@@ -12,7 +12,7 @@ public class PostResponse {
     private int commentCount;
     private boolean isLandscape;
     private String imageUrl;
-
+    private boolean likedByCurrentUser;
     private UUID userId;
     private String username;
 
@@ -86,5 +86,13 @@ public class PostResponse {
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+
+    public boolean isLikedByCurrentUser() {
+        return likedByCurrentUser;
+    }
+
+    public void setLikedByCurrentUser(boolean likedByCurrentUser) {
+        this.likedByCurrentUser = likedByCurrentUser;
     }
 }
